@@ -1,6 +1,3 @@
-import tensorflow as tf
-import sys
-import math
 import os
 import numpy as np
 import json

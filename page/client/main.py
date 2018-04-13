@@ -2,11 +2,12 @@ from tkinter import *
 from graduation.page.client import login
 from PyQt5 import QtWidgets,QtGui
 from graduation.page.client import mainWindow
-from graduation.diagnosis import testclassify
-
+# root = Tk()
+# root.title('PET/CT图像分类系统')
+# loginPage.LoginPage(root)
+# root.mainloop()
 
 if __name__ == '__main__':
-
     app = QtWidgets.QApplication(sys.argv)
 
     dialog = login.Login()

@@ -405,10 +405,8 @@ border-color: rgb(0, 0, 0);</string>
  <resources/>
  <connections/>
  <slots>
-  <signal>signal1()</signal>
   <slot>slot1()</slot>
   <slot>openFile()</slot>
   <slot>slot3()</slot>
-  <slot>test()</slot>
  </slots>
 </ui>
