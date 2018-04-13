@@ -88,7 +88,7 @@ def hist_feature(list_txt):
 
 def save_feature():
     t1 = datetime.datetime.now()
-    X_train, y_train = hist_feature(train_list)
+    # X_train, y_train = hist_feature(train_list)
     t2 = datetime.datetime.now()
     X_test, y_test = hist_feature(test_list)
     t3 = datetime.datetime.now()
@@ -123,7 +123,7 @@ def fit(clf, s):
     joblib.dump(clf, s + '_model.pkl')
     t4 = datetime.datetime.now()
     print("--------------------------------\ntime of training model: %0.2f" % (t4 - t3).total_seconds())
-    scores = cross_val_score(clf, X_train, y_train, scoring='accuracy', cv=3)
+    scores = cross_val_score(clf, X_train, y_train, scoring='accuracy')
     print("Train Cross Avg. Score: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
     return clf
 
@@ -132,36 +132,37 @@ def testScore(clf):
     t4 = datetime.datetime.now()
     X_test = joblib.load(test_list.split('.')[0] + filename)
     y_test = joblib.load(test_list.split('.')[0] + '_label.pkl')
+    print("x-test:")
+    print(X_test)
+    print("y-test:")
+    print(y_test)
     clf_score = clf.score(X_test, y_test)
     print("--------------------------------\nTest score: %.4f" % clf_score)
     clf_pred = clf.predict(X_test)
-    print(clf_pred[:10])
+    print(clf_pred[:3])
     t5 = datetime.datetime.now()
     print("time of testing model: %0.2f" % (t5 - t4).total_seconds())
-    scores = cross_val_score(clf, X_test, y_test, scoring='accuracy',cv=3)
+    scores = cross_val_score(clf, X_test, y_test, scoring='accuracy')
+    print(scores.max(), scores.min(), type(scores))
     print("Test Cross Avg. Score: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
+    if clf_pred[:1] == 0:
+        if scores[:1] > 0.5: #negative
+            return False
+        else:
+            return True
+    elif clf_pred[:1] == 1:
+        if scores[:1] > 0.5: #positive
+            return True
+        else:
+            return False
 
-
-def testadaScore(clf):
-    t4 = datetime.datetime.now()
-    X_test = joblib.load(test_list.split('.')[0] + filename)
-    # y_test = joblib.load(test_list.split('.')[0] + '_label.pkl')
-    clf_score = clf.score(X_test)
-    print("--------------------------------\nTest score: %.4f" % clf_score)
-    clf_pred = clf.predict(X_test)
-    print(clf_pred[:10])
-    t5 = datetime.datetime.now()
-    print("time of testing model: %0.2f" % (t5 - t4).total_seconds())
-    scores = cross_val_score(clf, X_test, scoring='accuracy', cv=3)
-    print("Test Cross Avg. Score: %0.4f (+/- %0.4f)" % (scores.mean(), scores.std() * 2))
-
-if __name__ == '__main__':
-    # save_feature()
-
-   # dt = decision_tree()
-   # rf = random_forest()
-   ada = adaboost()
-   # dt = joblib.load('dt_model.pkl')
-   # rf = joblib.load('rf_model.pkl')
-   ada = joblib.load('ada_model.pkl')
-   testadaScore(ada)
+# if __name__ == '__main__':
+#    save_feature()
+#
+#    # dt = decision_tree()
+#    # rf = random_forest()
+#    ada = adaboost()
+#    # dt = joblib.load('dt_model.pkl')
+#    # rf = joblib.load('rf_model.pkl')
+#    ada = joblib.load('ada_model.pkl')
+#    print(testScore(ada))

@@ -1,7 +1,8 @@
 import os
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
-from keras.models import Sequential, load_model
+from keras.preprocessing.image import load_img, img_to_array
+from keras.models import load_model
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 忽略烦人的警告
 
 img_width, img_height = 150, 150
 model_path = './models/model.h5'
@@ -21,6 +22,8 @@ def predict(file):
   else:
     return False
 
+flag = predict(r"C:\Users\FEITENG\Desktop\trainP\positive_005.jpg")
+print(flag)
 # counter = 1
 # while counter<=623:
 # 	#name ='cat2.jpg'

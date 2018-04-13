@@ -1,78 +1,144 @@
 from graduation.page.client import ui_mainWindow
 from PyQt5 import QtWidgets,QtGui
 from graduation.diagnosis import testclassify
-from graduation.KNN import test
+# from graduation.KNN import test  # test import  出錯
 import dicom
-# from tkinter import filedialog as tkFileDialog
-from tensorflowCNN import preprocess
-from PIL import Image, ImageTk
+from graduation.page.client import preprocess
+from PIL import Image
 import numpy as np
 from matplotlib import pyplot as plt
 from graduation.threemethod import extract_train_test
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 忽略烦人的警告
 
 class firstWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.ui = ui_mainWindow.Ui_MainWindow()
         self.ui.setupUi(self)
-
+        self.flag = 0
         self.ui.openButton.clicked.connect(self.openFile)
-        self.ui.IncButton.clicked.connect(self.inception)
+        self.ui.diaButton.clicked.connect(self.diagnosis)
         self.ui.caButton.clicked.connect(self.getseed)
-        self.ui.knnButton.clicked.connect(self.getKnn)
-        self.ui.diaButton.clicked.connect(self.test)
-        self.fileName = ""
+        # self.ui.knnButton.clicked.connect(self.getKnn)
+        # self.ui.diaButton.clicked.connect(self.test)
+
+
+    def diagnosis(self):
+        if (self.fileName != "") & ("jpg" not in self.fileName):
+            fileNamelist = self.fileName.split("PT/PT_")
+            self.fileNameShow = fileNamelist[0] + "merge/" + fileNamelist[1] + ".jpg"
+            self.Flaginc = testclassify.testOne(self.fileNameShow)
+            print(self.Flaginc)
+            self.getTestTxt(self.fileName)
+
+        elif "jpg"  in self.fileName:
+            self.Flaginc = testclassify.testOne(self.fileName)
+            print(self.Flaginc)
+            self.getTestTxt(self.fileName)
+            extract_train_test.save_feature()
+            self.ada = extract_train_test.adaboost()
+            self.Flagada = extract_train_test.testScore(self.ada)
+            print(self.Flagada)
+            self.dt = extract_train_test.adaboost()
+            self.Flagdt = extract_train_test.testScore(self.dt)
+            print(self.Flagdt)
+            self.rf = extract_train_test.adaboost()
+            self.Flagrf = extract_train_test.testScore(self.rf)
+            print(self.Flagrf)
+
+            if self.Flagada == True:
+               self.flag += 1
+            if self.Flagdt == True:
+               self.flag += 1
+            if self.Flaginc == True:
+               self.flag += 1
+            if self.Flagrf == True:
+               self.flag += 1
+
+            if self.flag >= 2:
+               self.ui.result.setText("异常")
+            else:
+               self.ui.result.setText("正常")
+
+    def getTestTxt(self,fileName):
+        # number = fileName[-7:-4]
+        # label = labelname[-1:]
+        # label = label[0]
+        labelname = fileName.split("src/merge/")
+        number = labelname[1]
+        number = number[:3]
+        if "biwei" in labelname[0]:
+            maskName = labelname[0]+"mask\IMG-0004-00"+str(int(number)).zfill(3)+".jpg"
+        elif "chixuemei" in labelname[0]:
+            maskName = labelname[0] + "mask\IMG-0005-00" + str(int(number)).zfill(3) + ".jpg"
+        elif "bojingyi" in labelname[0]:
+            maskName = labelname[0] + "mask\IMG-0001-00" + str(int(number)).zfill(3) + ".jpg"
+        img = Image.open(maskName)
+        imgdata = np.matrix(img.getdata(), dtype='float')
+        if imgdata.max() == 255.0:
+            print("positive")
+            f = open('images/test.txt', 'w')
+            f.write("1" + "/positive_" +labelname[1]+ " " +"1"+ "\n")
+            f.write("1" + "/positive_" +str(int(number)+1).zfill(3)+".jpg"+ " " +"1"+ "\n")
+            f.write("1" + "/positive_" +str(int(number)+2).zfill(3)+".jpg"+ " " +"1"+ "\n")
+            f.close()
+        else:
+            print("negative")
+            f = open('images/test.txt', 'w')
+            f.write("0" + "/negative_" + labelname[1] + " " + "0" + "\n")
+            f.write("0" + "/negative_" +str(int(number) + 1).zfill(3) +".jpg"+ " " + "0" + "\n")
+            f.write("0" + "/negative_" +str(int(number) + 2).zfill(3) +".jpg"+ " " + "0" + "\n")
+            f.close()
 
     def inception(self):
         if (self.fileName != "") & ("jpg" not in self.fileName):
             fileNamelist = self.fileName.split("PT/PT_")
             self.fileNameShow = fileNamelist[0] + "merge/" + fileNamelist[1] + ".jpg"
             # print(self.fileNameShow)
-            self.Flag = testclassify.testOne(self.fileNameShow)
-            if self.Flag == True:
-                self.ui.result.setText("正常")
-                # print("正常")
-            else:
-                # print("异常")
-                self.ui.result.setText("异常")
-                # 打开文件
+            self.Flaginc = testclassify.testOne(self.fileNameShow)
+            # if self.Flaginc == True:
+            #     self.ui.result.setText("正常")
+            #     # print("正常")
+            # else:
+            #     # print("异常")
+            #     self.ui.result.setText("异常")
+            #     # 打开文件
+            return self.Flaginc
         elif "jpg"  in self.fileName:
             print(self.fileName)
-            self.Flag = testclassify.testOne(self.fileName)
-            if self.Flag == True:
-                self.ui.result.setText("正常")
-                # print("正常")
-            else:
-                # print("异常")
-                self.ui.result.setText("异常")
+            self.Flaginc = testclassify.testOne(self.fileName)
+            # if self.Flaginc == True:
+            #     self.ui.result.setText("正常")
+            #     # print("正常")
+            # else:
+            #     # print("异常")
+            #     self.ui.result.setText("异常")
+            return self.Flaginc
         else:
             print("请选择文件")
 
-    def test(self):
-        flag = testclassify.testOne(r"C:/Users/FEITENG/Desktop/trainP/positive_005.jpg")
-        print(flag)
-    def getKnn(self):
-        if (self.fileName != "") & ("jpg" not in self.fileName):
-            fileNamelist = self.fileName.split("PT/PT_")
-            self.fileNameShow = fileNamelist[0] + "merge/" + fileNamelist[1] + ".jpg"
-            self.result = test.predict(self.fileNameShow)
-            if self.result == True:
-                self.ui.result.setText("正常")
-                # print("正常")
-            else:
-                # print("异常")
-                self.ui.result.setText("异常")
-        elif ("jpg"  in self.fileName):
-            self.result = test.predict(self.fileName)
-            if self.result == True:
-                self.ui.result.setText("正常")
-                # print("正常")
-            else:
-                # print("异常")
-                self.ui.result.setText("异常")
-        else:
-            print("请选择文件")
+    # def getKnn(self):
+    #     if (self.fileName != "") & ("jpg" not in self.fileName):
+    #         fileNamelist = self.fileName.split("PT/PT_")
+    #         self.fileNameShow = fileNamelist[0] + "merge/" + fileNamelist[1] + ".jpg"
+    #         self.result = test.predict(self.fileNameShow)
+    #         if self.result == True:
+    #             self.ui.result.setText("正常")
+    #             # print("正常")
+    #         else:
+    #             # print("异常")
+    #             self.ui.result.setText("异常")
+    #     elif ("jpg"  in self.fileName):
+    #         self.result = test.predict(self.fileName)
+    #         if self.result == True:
+    #             self.ui.result.setText("正常")
+    #             # print("正常")
+    #         else:
+    #             # print("异常")
+    #             self.ui.result.setText("异常")
+    #     else:
+    #         print("请选择文件")
 
     def openFile(self):
         # self.fileName = tkFileDialog.askopenfilename(self, '选择图片', 'c:\\', 'Image files(*.jpg *.dic *.dicom)')
@@ -80,7 +146,6 @@ class firstWindow(QtWidgets.QMainWindow):
         if (self.fileName != "") & ("jpg" not in self.fileName):
             self.file1 = dicom.read_file(self.fileName).pixel_array
             self.img = Image.fromarray(self.file1)
-
             number = int(self.fileName[-3:])
             self.preFileName = self.fileName[:-3] + str(number - 1).zfill(3)
             self.postFileName = self.fileName[:-3] + str(number + 1).zfill(3)
@@ -100,11 +165,28 @@ class firstWindow(QtWidgets.QMainWindow):
             self.show.save("./Image/show.jpg")
             pix = QtGui.QPixmap("./Image/show.jpg")
             self.ui.label_4.setPixmap(pix)
+            labelname = self.fileName.split("merge/")
+            number = labelname[1]
+            number = number[:3]
+            self.currentFileName = labelname[0] + "PT/PT_"+str(int(number)).zfill(3)
+            self.preFileName = labelname[0] + "PT/PT_"+str(int(number)-1).zfill(3)
+            self.postFileName = labelname[0] + "PT/PT_" + str(int(number) + 1).zfill(3)
+
+
+            self.preFile = dicom.read_file(self.preFileName).pixel_array
+            self.postFile = dicom.read_file(self.postFileName).pixel_array
+            self.currentFile = dicom.read_file(self.currentFileName).pixel_array
+
+            self.preimg = Image.fromarray(self.preFile)
+            self.postimg = Image.fromarray(self.postFile)
+            self.img = Image.fromarray(self.currentFile)
+            print(self.preFileName, self.postFileName, self.currentFileName)
         else:
             print("没有选择文件")
 
     def getseed(self):
-        if (self.fileName != "") & ("jpg" not in self.fileName):
+        # if (self.fileName != "") & ("jpg" not in self.fileName):
+        if "jpg"  in self.fileName :
             self.roi = self.img
             self.preRoi =self.preimg
             self.postRoi = self.postimg
@@ -114,7 +196,7 @@ class firstWindow(QtWidgets.QMainWindow):
             postRoi_pix = np.array(self.postRoi)
 
             # 获取所有的SUV值
-            suv_arr = preprocess.getASuv(self.fileName, roi_pix)
+            suv_arr = preprocess.getASuv(self.currentFileName, roi_pix)
 
             preSuv_arr = preprocess.getASuv(self.preFileName, preRoi_pix)
             postSuv_arr = preprocess.getASuv(self.postFileName, postRoi_pix)
@@ -268,7 +350,7 @@ class firstWindow(QtWidgets.QMainWindow):
             # Image.fromarray(preprocess.function_z(Cp1)).show()
             # return Cp1
         else:
-           print("请选择文件")
+           print("病人正常")
 
 
 

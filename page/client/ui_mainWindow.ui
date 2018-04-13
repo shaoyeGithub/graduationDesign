@@ -75,20 +75,6 @@ QGroupBox::title {
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="IncButton">
-            <property name="text">
-             <string>Inception</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="knnButton">
-            <property name="text">
-             <string>KNN</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="caButton">
             <property name="text">
              <string>CA</string>
@@ -419,8 +405,10 @@ border-color: rgb(0, 0, 0);</string>
  <resources/>
  <connections/>
  <slots>
+  <signal>signal1()</signal>
   <slot>slot1()</slot>
   <slot>openFile()</slot>
   <slot>slot3()</slot>
+  <slot>test()</slot>
  </slots>
 </ui>
