@@ -6,9 +6,11 @@ import dicom
 from graduation.page.client import preprocess
 from PIL import Image
 import numpy as np
+from skimage import measure
 from matplotlib import pyplot as plt
 from graduation.threemethod import extract_train_test
 import os
+import cv2
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 忽略烦人的警告
 
 class firstWindow(QtWidgets.QMainWindow):
@@ -344,6 +346,7 @@ class firstWindow(QtWidgets.QMainWindow):
             ca_result_show.save("./Image/ca_result.jpg")
             pix = QtGui.QPixmap("./Image/ca_result.jpg")
             self.ui.label_5.setPixmap(pix)
+            self.showResult()
             # self.image3 = ImageTk.PhotoImage(result_show)
             # self.Canvas3.create_image(0, 0, image=self.image3, anchor=tkinter.NW)
             # self.variab1.set('')
@@ -352,5 +355,31 @@ class firstWindow(QtWidgets.QMainWindow):
         else:
            print("病人正常")
 
+
+    def showResult(self):
+        image = Image.open("./Image/ca_result.jpg")
+        img = np.array(image)
+        imshow = Image.open("./Image/show.jpg")
+        imshow = np.array(imshow)
+        shapemax = -1
+        contours = measure.find_contours(img, 0.5)
+        plt.figure(figsize=(3.5, 2.2))
+        plt.axis('off')
+        plt.imshow(imshow, plt.cm.gray)
+        plt.margins(0, 0)
+        for i in range(len(contours)):
+            if (contours[i].shape)[0] > shapemax:
+                shapemax = (contours[i].shape)[0]
+
+        for n, contour in enumerate(contours):
+            if (contour.shape)[0] == shapemax:
+                plt.plot(contour[:, 1], contour[:, 0], color="red", linewidth=1)
+                plt.savefig("./image/result_contour.jpg")
+
+                img = Image.open("./image/result_contour.jpg")
+                img = img.crop((44, 28, 44 + 270, 28 + 164))
+                img.save("./image/result_contour.jpg")
+                pix = QtGui.QPixmap("./image/result_contour.jpg")
+                self.ui.label_6.setPixmap(pix)
 
 

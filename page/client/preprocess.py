@@ -162,8 +162,8 @@ def getASuv(file,pixel):
 # #suv_arr *= _mask
 # suv_arr = _mask
 ########################################################################
-def seg(suv_arr):
-    image = function_z(suv_arr)
+def seg(result):
+    image = result
     thresh = filters.threshold_otsu(image)  # 阈值分割
     bw = morphology.closing(image > thresh, morphology.square(3))  # 闭运算
 
@@ -186,21 +186,22 @@ def seg(suv_arr):
     for region in measure.regionprops(label_image):  # 循环得到每一个连通区域属性集
 
         # 忽略小区域
-        if region.area < 5:
-            continue
+        # if region.area < 5:
+        #     continue
         # 绘制外包矩形
-        img = Image.fromarray(function_z(suv_arr), "L")
+        img = Image.fromarray(result, "L")
 
         minr, minc, maxr, maxc = region.bbox
         rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
                                   fill=False, edgecolor='red', linewidth=2)
         box = (minc, minr, maxc, maxr)
+        print(box)
         roi = img.crop(box)
         imgdata = np.matrix(roi.getdata(), dtype='float')
-        print("平均SUV:%s" % (imgdata.mean()))
-        print("最大值:%f" % (imgdata.max()))
-        print("极差:%f" % ((imgdata.max() - imgdata.min())))
-        getEntropy(np.array(roi))
+        # print("平均SUV:%s" % (imgdata.mean()))
+        # print("最大值:%f" % (imgdata.max()))
+        # print("极差:%f" % ((imgdata.max() - imgdata.min())))
+        # getEntropy(np.array(roi))
         # roi.show()
         ax1.add_patch(rect)
 
