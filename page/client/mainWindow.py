@@ -22,6 +22,9 @@ class firstWindow(QtWidgets.QMainWindow):
         self.ui.openButton.clicked.connect(self.openFile)
         self.ui.diaButton.clicked.connect(self.diagnosis)
         self.ui.caButton.clicked.connect(self.getseed)
+        self.ui.pushButton.clicked.connect(self.getDice)
+        self.ui.result.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
+
         # self.ui.knnButton.clicked.connect(self.getKnn)
         # self.ui.diaButton.clicked.connect(self.test)
 
@@ -59,9 +62,11 @@ class firstWindow(QtWidgets.QMainWindow):
                self.flag += 1
 
             if self.flag >= 2:
-               self.ui.result.setText("异常")
+               self.text = "异常"
+               self.ui.result.setText(self.text)
             else:
-               self.ui.result.setText("正常")
+               self.text = "正常"
+               self.ui.result.setText(self.text)
 
     def getTestTxt(self,fileName):
         # number = fileName[-7:-4]
@@ -71,13 +76,13 @@ class firstWindow(QtWidgets.QMainWindow):
         number = labelname[1]
         number = number[:3]
         if "biwei" in labelname[0]:
-            maskName = labelname[0]+"mask\IMG-0004-00"+str(int(number)).zfill(3)+".jpg"
+            self.maskName = labelname[0]+"mask/IMG-0004-00"+str(int(number)).zfill(3)+".jpg"
         elif "chixuemei" in labelname[0]:
-            maskName = labelname[0] + "mask\IMG-0005-00" + str(int(number)).zfill(3) + ".jpg"
+            self.maskName = labelname[0] + "mask/IMG-0005-00" + str(int(number)).zfill(3) + ".jpg"
         elif "bojingyi" in labelname[0]:
-            maskName = labelname[0] + "mask\IMG-0001-00" + str(int(number)).zfill(3) + ".jpg"
-        img = Image.open(maskName)
-        imgdata = np.matrix(img.getdata(), dtype='float')
+            self.maskName = labelname[0] + "mask/IMG-0001-00" + str(int(number)).zfill(3) + ".jpg"
+        imgMask = Image.open(self.maskName)
+        imgdata = np.matrix(imgMask.getdata(), dtype='float')
         if imgdata.max() == 255.0:
             print("positive")
             f = open('images/test.txt', 'w')
@@ -382,4 +387,34 @@ class firstWindow(QtWidgets.QMainWindow):
                 pix = QtGui.QPixmap("./image/result_contour.jpg")
                 self.ui.label_6.setPixmap(pix)
 
+    #产生Dice系数
+    def getDice(self):
+
+        # print(self.maskName)
+        img = Image.open(self.maskName).resize((512, 512)).convert("L")
+
+        imgdataA = np.matrix(img.getdata(), dtype='float')
+
+        _maskA = imgdataA == 255.0
+
+        img = Image.open("./Image/ca_result.jpg").resize((512, 512))
+
+        imgdataB = np.matrix(img.getdata(), dtype='float')
+
+        _maskB = imgdataB == 0
+
+
+        _maskA = np.squeeze(np.asarray(_maskA))
+
+        _maskB = np.squeeze(np.asarray(_maskB))
+
+        _mask = np.bitwise_and(_maskA, _maskB)
+        A = np.sum(_maskA == True)
+        B = np.sum(_maskB == True)
+        AandB = np.sum(_mask == True)
+
+        Dice = 2*AandB/(A+B)
+        Dice = round(Dice,3)
+        self.text = self.text + " Dice:" + str(Dice)
+        self.ui.result.setText(self.text)
 
