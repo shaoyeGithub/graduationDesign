@@ -23,3 +23,4 @@ class Login(QtWidgets.QDialog):
         print("客户端接受消息：" + accept_data)
         if  accept_data == "1":
             self.accept()
+

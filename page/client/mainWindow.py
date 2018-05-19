@@ -10,7 +10,8 @@ from skimage import measure
 from matplotlib import pyplot as plt
 from graduation.threemethod import extract_train_test
 import os
-import cv2
+import datetime
+import socket
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 忽略烦人的警告
 
 class firstWindow(QtWidgets.QMainWindow):
@@ -38,6 +39,7 @@ class firstWindow(QtWidgets.QMainWindow):
             self.getTestTxt(self.fileName)
 
         elif "jpg"  in self.fileName:
+            self.getMessage()
             self.Flaginc = testclassify.testOne(self.fileName)
             print(self.Flaginc)
             self.getTestTxt(self.fileName)
@@ -45,10 +47,10 @@ class firstWindow(QtWidgets.QMainWindow):
             self.ada = extract_train_test.adaboost()
             self.Flagada = extract_train_test.testScore(self.ada)
             print(self.Flagada)
-            self.dt = extract_train_test.adaboost()
+            self.dt = extract_train_test.decision_tree()
             self.Flagdt = extract_train_test.testScore(self.dt)
             print(self.Flagdt)
-            self.rf = extract_train_test.adaboost()
+            self.rf = extract_train_test.random_forest()
             self.Flagrf = extract_train_test.testScore(self.rf)
             print(self.Flagrf)
 
@@ -98,32 +100,50 @@ class firstWindow(QtWidgets.QMainWindow):
             f.write("0" + "/negative_" +str(int(number) + 2).zfill(3) +".jpg"+ " " + "0" + "\n")
             f.close()
 
+    def getMessage(self):
+        # print("######################")
+        # print(self.currentFileName)
+        # print("######################")
+
+        getPT = dicom.read_file(self.currentFileName)
+        self.sk = socket.socket()
+        self.sk.connect(("127.0.0.1", 8888))  # 主动初始化与服务器端的连接
+        name = getPT.PatientName
+        gender = getPT.PatientSex
+        age = int(datetime.datetime.now().year) - int(getPT.PatientBirthDate[:4])
+        data = getPT.StudyDate
+        send_data = "Information~" + str(name) + "#" + str(gender) + "#" + str(age) + "#" + str(data)
+        print("客户端发送消息：" + send_data)
+        self.sk.sendall(bytes(send_data, encoding="utf8"))
+
+
+
     def inception(self):
-        if (self.fileName != "") & ("jpg" not in self.fileName):
-            fileNamelist = self.fileName.split("PT/PT_")
-            self.fileNameShow = fileNamelist[0] + "merge/" + fileNamelist[1] + ".jpg"
-            # print(self.fileNameShow)
-            self.Flaginc = testclassify.testOne(self.fileNameShow)
-            # if self.Flaginc == True:
-            #     self.ui.result.setText("正常")
-            #     # print("正常")
-            # else:
-            #     # print("异常")
-            #     self.ui.result.setText("异常")
-            #     # 打开文件
-            return self.Flaginc
-        elif "jpg"  in self.fileName:
-            print(self.fileName)
-            self.Flaginc = testclassify.testOne(self.fileName)
-            # if self.Flaginc == True:
-            #     self.ui.result.setText("正常")
-            #     # print("正常")
-            # else:
-            #     # print("异常")
-            #     self.ui.result.setText("异常")
-            return self.Flaginc
-        else:
-            print("请选择文件")
+            if (self.fileName != "") & ("jpg" not in self.fileName):
+                fileNamelist = self.fileName.split("PT/PT_")
+                self.fileNameShow = fileNamelist[0] + "merge/" + fileNamelist[1] + ".jpg"
+                # print(self.fileNameShow)
+                self.Flaginc = testclassify.testOne(self.fileNameShow)
+                # if self.Flaginc == True:
+                #     self.ui.result.setText("正常")
+                #     # print("正常")
+                # else:
+                #     # print("异常")
+                #     self.ui.result.setText("异常")
+                #     # 打开文件
+                return self.Flaginc
+            elif "jpg"  in self.fileName:
+                print(self.fileName)
+                self.Flaginc = testclassify.testOne(self.fileName)
+                # if self.Flaginc == True:
+                #     self.ui.result.setText("正常")
+                #     # print("正常")
+                # else:
+                #     # print("异常")
+                #     self.ui.result.setText("异常")
+                return self.Flaginc
+            else:
+                print("请选择文件")
 
     # def getKnn(self):
     #     if (self.fileName != "") & ("jpg" not in self.fileName):
@@ -413,7 +433,7 @@ class firstWindow(QtWidgets.QMainWindow):
         B = np.sum(_maskB == True)
         AandB = np.sum(_mask == True)
 
-        Dice = 2*AandB/(A+B)
+        Dice = (2*AandB)/(A+B)
         Dice = round(Dice,3)
         self.text = self.text + " Dice:" + str(Dice)
         self.ui.result.setText(self.text)

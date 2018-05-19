@@ -20,9 +20,20 @@ class MyServer(socketserver.BaseRequestHandler):  # 创建一个类，继承自s
             send_data = self.checkLogin(en1_value, en2_value)
             print("服务器端发送信息："+send_data)
             conn.sendall(bytes(send_data,encoding="utf8"))
+
+        if accept_list[0] == "Information":
+            inf = accept_list[1].split("#")
+            name = inf[0]
+            gender = inf[1]
+            age = inf[2]
+            data = inf[3]
+            print(name, gender,age,data)
+            self.saveImg(name, gender,age,data)
+
+        conn.close()
         # send_data = bytes(input(">>>>>"), encoding="utf8")
         # conn.sendall(send_data)
-        conn.close()
+
     def checkLogin(self,en1_value,en2_value):
         #打开数据库连接
         db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='graduationdesigner')
@@ -47,6 +58,37 @@ class MyServer(socketserver.BaseRequestHandler):  # 创建一个类，继承自s
         # 关闭数据库连接
         db.close()
         return "0"
+
+    def saveImg(self,name,gender,age,data):
+        db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='graduationdesigner')
+        # 使用cursor()方法获取操作游标
+        cursor = db.cursor()
+        sql = "select id from patient"
+        # SQL 查询语ju
+        num = 0
+        try:
+            # 执行SQL语句
+            cursor.execute(sql)
+            # 获取所有记录列表
+            results = cursor.fetchall()
+            for row in results:
+                num = row[0].length
+        except:
+            print("Error: unable to fecth data")
+
+        num = num + 1
+        print(num)
+        sql = 'insert into patient(id,name,gender,age,data) VALUES("%d","%s","%s","%s","%s")'%(num,name,gender,age,data)
+        try:
+            # 执行SQL语句
+            cursor.execute(sql)
+            # 获取所有记录列表
+            db.commit()
+        except:
+            db.rollback()
+
+        # 关闭数据库连接
+        db.close()
 
 if __name__ == '__main__':
     print("服务器开始运行：")
