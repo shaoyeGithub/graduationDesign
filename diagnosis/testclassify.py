@@ -61,12 +61,12 @@ def testOne(fileName):
     with tf.Session() as sess:
 
         prediction = sess.graph.get_tensor_by_name('Softmax:0')
-        print("123")
+        # print("123")
         inputs = sess.graph.get_tensor_by_name('inputs:0')
-        print("23")
+        # print("23")
         print(os.path.abspath('./model/savedmodel.meta'))
         new_saver = tf.train.import_meta_graph('./model/savedmodel.meta')#这句出错了
-        print("3")
+        # print("3")
         new_saver.restore(sess, tf.train.latest_checkpoint('./model'))
         prediction = sess.run(prediction, feed_dict={inputs: image_input})
 

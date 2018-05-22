@@ -46,9 +46,9 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "登录"))
         self.loginButton.setText(_translate("Dialog", "登陆"))
         self.pswButton.setText(_translate("Dialog", "修改密码"))
         self.checkBox.setText(_translate("Dialog", "记住密码"))
-        self.label.setText(_translate("Dialog", "TextLabel"))
+        self.label.setText(_translate("Dialog", "淋巴瘤CAD系统"))
 

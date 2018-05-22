@@ -27,8 +27,14 @@ class MyServer(socketserver.BaseRequestHandler):  # 创建一个类，继承自s
             gender = inf[1]
             age = inf[2]
             data = inf[3]
-            print(name, gender,age,data)
-            self.saveImg(name, gender,age,data)
+            dia_time = inf[4]
+            dia_result = inf[5]
+            if dia_result =="异常":
+                dia_result = "Positive"
+            else:
+                dia_result = "Negative"
+            print(name, gender,age,data,dia_time,dia_result)
+            self.saveImg(name, gender,age,data,dia_time,dia_result)
 
         conn.close()
         # send_data = bytes(input(">>>>>"), encoding="utf8")
@@ -59,33 +65,52 @@ class MyServer(socketserver.BaseRequestHandler):  # 创建一个类，继承自s
         db.close()
         return "0"
 
-    def saveImg(self,name,gender,age,data):
+    def saveImg(self,name,gender,age,data,dia_time,dia_result):
         db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='123456', db='graduationdesigner')
         # 使用cursor()方法获取操作游标
         cursor = db.cursor()
-        sql = "select id from patient"
+        sql = 'select id from patient where name = "%s"'% name
         # SQL 查询语ju
-        num = 0
+        self.num = 0
+        sql1 = 'select count(*) from patient'
         try:
             # 执行SQL语句
             cursor.execute(sql)
             # 获取所有记录列表
             results = cursor.fetchall()
-            for row in results:
-                num = row[0].length
+
+            if len(results) == 0:
+                cursor.execute(sql1)
+                results1 = cursor.fetchall()
+                for row1 in results1:
+                    self.num = int(row1[0]) + 1
+                sql = 'insert into patient(id,name,gender,age,data,diatime,diaresult) VALUES("%d","%s","%s","%s","%s","%s","%s")' % (
+                    self.num, name,gender,age,data,dia_time,dia_result)
+                try:
+                    # 执行SQL语句
+                    cursor.execute(sql)
+                    # 获取所有记录列表
+                    db.commit()
+                except:
+                    db.rollback()
+                    print("插入失败")
+            else:
+                for row in results:
+                    self.num = int(row[0])
+                    sql = 'update patient set diatime = "%s" , diaresult = "%s" where id = "%d"' % (
+                       dia_time,dia_result,self.num)
+                    try:
+                        # 执行SQL语句
+                        cursor.execute(sql)
+                        # 获取所有记录列表
+                        db.commit()
+                    except:
+                        db.rollback()
+                        print("更新失败")
+
         except:
             print("Error: unable to fecth data")
 
-        num = num + 1
-        print(num)
-        sql = 'insert into patient(id,name,gender,age,data) VALUES("%d","%s","%s","%s","%s")'%(num,name,gender,age,data)
-        try:
-            # 执行SQL语句
-            cursor.execute(sql)
-            # 获取所有记录列表
-            db.commit()
-        except:
-            db.rollback()
 
         # 关闭数据库连接
         db.close()

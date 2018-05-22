@@ -70,21 +70,21 @@ QGroupBox::title {
           <item>
            <widget class="QPushButton" name="diaButton">
             <property name="text">
-             <string>dia</string>
+             <string>诊断</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="caButton">
             <property name="text">
-             <string>CA</string>
+             <string>元胞自动机（CA）</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButton">
             <property name="text">
-             <string>Dice</string>
+             <string>Dice系数</string>
             </property>
            </widget>
           </item>
@@ -127,7 +127,7 @@ QGroupBox::title {
              </size>
             </property>
             <property name="text">
-             <string>结果：</string>
+             <string>结果:</string>
             </property>
            </widget>
           </item>
@@ -293,7 +293,7 @@ border-color: rgb(0, 0, 0);</string>
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>选取ROI</string>
+                 <string>分割结果</string>
                 </property>
                </widget>
               </item>
