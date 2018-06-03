@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
 
     if dialog.exec_():
-        MainWindow = QtWidgets.QMainWindow()
+        # MainWindow = QtWidgets.QMainWindow()
         window = mainWindow.firstWindow()
         window.show()
         sys.exit(app.exec_())

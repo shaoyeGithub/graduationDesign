@@ -1,6 +1,12 @@
 import socketserver  # 导入socketserver模块
 import pymysql
+from PyQt5 import QtWidgets
+from graduation.page.server import servermainwindow,test
+import sys
+import tkinter
 
+import tkinter.messagebox
+from tkinter import mainloop
 class MyServer(socketserver.BaseRequestHandler):  # 创建一个类，继承自socketserver模块下的BaseRequestHandler类
 
     def handle(self):  # 要想实现并发效果必须重写父类中的handler方法，在此方法中实现服务端的逻辑代码（不用再写连接准备，包括bind()、listen()、accept()方法）
@@ -116,8 +122,21 @@ class MyServer(socketserver.BaseRequestHandler):  # 创建一个类，继承自s
         db.close()
 
 if __name__ == '__main__':
-    print("服务器开始运行：")
-    sever = socketserver.ThreadingTCPServer(("127.0.0.1", 8888),
-                                            MyServer)  # 传入 端口地址 和 我们新建的继承自socketserver模块下的BaseRequestHandler类  实例化对象
+    # test.iniserver()
 
-    sever.serve_forever()  # 通过调用对象的serve_forever()方法来激活服务端
+    # app = QtWidgets.QApplication(sys.argv)
+    # w = servermainwindow.firstWindow()
+    # w.show()
+    # sys.exit(app.exec_())
+    root = tkinter.Tk()
+    root.withdraw()
+    try:
+
+        sever = socketserver.ThreadingTCPServer(("127.0.0.1", 8888),
+                                                MyServer)  # 传入 端口地址 和 我们新建的继承自socketserver模块下的BaseRequestHandler类  实例化对象
+
+        tkinter.messagebox.showinfo("服务器","登录成功！")
+
+        sever.serve_forever()  # 通过调用对象的serve_forever()方法来激活服务端
+    except:
+        tkinter.messagebox.showinfo("服务器", "登录失败！")

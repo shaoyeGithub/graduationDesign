@@ -163,6 +163,25 @@ QGroupBox::title {
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QLabel" name="diaResult_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Dice:           </string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

@@ -50,19 +50,40 @@ class firstWindow(QtWidgets.QMainWindow):
 
             elif "jpg"  in self.fileName:
 
+                startTime = datetime.datetime.now()
+                startTime1 = datetime.datetime.now()
+                print(startTime1)
                 self.Flaginc = testclassify.testOne(self.fileName)
+                Inctime = (startTime - datetime.datetime.now()).seconds
+                print("InceptionV3时间为：" + str(Inctime))
+
                 print(self.Flaginc)
                 self.getTestTxt(self.fileName)
                 extract_train_test.save_feature()
+
+                startTime = datetime.datetime.now()
+                print(startTime)
                 self.ada = extract_train_test.adaboost()
                 self.Flagada = extract_train_test.testScore(self.ada)
                 print(self.Flagada)
+                adatime = (startTime-datetime.datetime.now()).seconds
+                print("Adaboost算法时间为：" + str(adatime))
+
+                startTime = datetime.datetime.now()
+                print(startTime)
                 self.dt = extract_train_test.decision_tree()
                 self.Flagdt = extract_train_test.testScore(self.dt)
                 print(self.Flagdt)
+                dttime = (startTime - datetime.datetime.now()).seconds
+                print("决策树时间为：" + str(dttime))
+
+                startTime = datetime.datetime.now()
+                print(startTime)
                 self.rf = extract_train_test.random_forest()
                 self.Flagrf = extract_train_test.testScore(self.rf)
                 print(self.Flagrf)
+                rftime = (startTime - datetime.datetime.now()).seconds
+                print("随机森林时间为：" + str(rftime))
 
                 if self.Flagada == True:
                    self.flag += 1
@@ -81,6 +102,9 @@ class firstWindow(QtWidgets.QMainWindow):
                    self.text = "正常"
                    self.diaFlag = 1
                    self.ui.result.setText(self.text)
+
+                time = (startTime1 - datetime.datetime.now()).seconds
+                print("集成算法时间为：" + str(time))
 
                 self.getMessage()
 
@@ -486,8 +510,9 @@ class firstWindow(QtWidgets.QMainWindow):
 
             Dice = (2*AandB)/(A+B)
             Dice = round(Dice,3)+0.5
-            self.text = self.text + " Dice:" + str(Dice)
-            self.ui.result.setText(self.text)
+            # self.text = self.text +
+            self.ui.diaResult_2.setText(" Dice:" + str(Dice))
+            # self.ui.result.setText(self.text)
         else:
             reply = QMessageBox.information(self,
                                             "warning",
