@@ -37,7 +37,7 @@ class Ui_Dialog(object):
         self.userEdit.setObjectName("userEdit")
         self.gridLayout.addWidget(self.userEdit, 0, 0, 1, 1)
         self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(140, 40, 81, 18))
+        self.label.setGeometry(QtCore.QRect(100, 40, 181, 20))
         self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
@@ -50,5 +50,5 @@ class Ui_Dialog(object):
         self.loginButton.setText(_translate("Dialog", "登陆"))
         self.pswButton.setText(_translate("Dialog", "修改密码"))
         self.checkBox.setText(_translate("Dialog", "记住密码"))
-        self.label.setText(_translate("Dialog", "淋巴瘤CAD系统"))
+        self.label.setText(_translate("Dialog", "淋巴瘤辅助诊断系统"))
 

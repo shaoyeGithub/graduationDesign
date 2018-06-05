@@ -1,18 +1,21 @@
-from graduation.page.client import ui_mainWindow
-from PyQt5 import QtWidgets,QtGui
-from graduation.diagnosis import testclassify
+import datetime
+import os
+import socket
+
+import dicom
+import numpy as np
+from PIL import Image
+from PyQt5 import QtWidgets, QtGui
 # from graduation.KNN import test  # test import  出錯
 from PyQt5.QtWidgets import QMessageBox
-import dicom
-from graduation.page.client import preprocess
-from PIL import Image
-import numpy as np
-from skimage import measure
 from matplotlib import pyplot as plt
-from graduation.threemethod import extract_train_test
-import os
-import datetime
-import socket
+from skimage import measure
+
+from graduation.page.client import preprocess
+from graduation.page.client import ui_mainWindow
+from graduation.page.client.diagnosis import testclassify
+from graduation.page.client.threemethod import extract_train_test
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 忽略烦人的警告
 
 class firstWindow(QtWidgets.QMainWindow):
@@ -125,14 +128,14 @@ class firstWindow(QtWidgets.QMainWindow):
         imgdata = np.matrix(imgMask.getdata(), dtype='float')
         if imgdata.max() == 255.0:
             print("positive")
-            f = open('images/test.txt', 'w')
+            f = open(os.getcwd()+r'/images/test.txt', 'w')
             f.write("1" + "/positive_" +labelname[1]+ " " +"1"+ "\n")
             f.write("1" + "/positive_" +str(int(number)+1).zfill(3)+".jpg"+ " " +"1"+ "\n")
             f.write("1" + "/positive_" +str(int(number)+2).zfill(3)+".jpg"+ " " +"1"+ "\n")
             f.close()
         else:
             print("negative")
-            f = open('images/test.txt', 'w')
+            f = open(os.getcwd()+r'/images/test.txt', 'w')
             f.write("0" + "/negative_" + labelname[1] + " " + "0" + "\n")
             f.write("0" + "/negative_" +str(int(number) + 1).zfill(3) +".jpg"+ " " + "0" + "\n")
             f.write("0" + "/negative_" +str(int(number) + 2).zfill(3) +".jpg"+ " " + "0" + "\n")
@@ -158,7 +161,8 @@ class firstWindow(QtWidgets.QMainWindow):
     def saveFile(self):
         if self.CAFlag == True:
             print("保存文件")
-            Img = Image.open("./Image/result_contour.jpg")
+
+            Img = Image.open(os.getcwd()+r"/Image/result_contour.jpg")
             filename = QtWidgets.QFileDialog.getSaveFileName(self, 'save file','result_contour',filter=".jpg")
             if filename[0]+filename[1] != "":
                 print(filename[0]+filename[1])
@@ -263,8 +267,9 @@ class firstWindow(QtWidgets.QMainWindow):
                 self.img = Image.fromarray(self.currentFile)
                 print(self.preFileName, self.postFileName, self.currentFileName)
                 self.show = Image.open(self.fileName).resize((self.ui.label_4.width(), self.ui.label_4.height()))
-                self.show.save("./Image/show.jpg")
-                pix = QtGui.QPixmap("./Image/show.jpg")
+
+                self.show.save(os.getcwd()+r"/Image/show.jpg")
+                pix = QtGui.QPixmap(os.getcwd()+r"/Image/show.jpg")
                 self.ui.label_4.setPixmap(pix)
                 self.showFlag = True
             except:
@@ -433,8 +438,8 @@ class firstWindow(QtWidgets.QMainWindow):
 
 
                 ca_result_show = Image.fromarray(preprocess.function_z(Cp1)).resize((self.ui.label_5.width(),self.ui.label_5.height()))
-                ca_result_show.save("./Image/ca_result.jpg")
-                pix = QtGui.QPixmap("./Image/ca_result.jpg")
+                ca_result_show.save(os.getcwd()+r"/Image/ca_result.jpg")
+                pix = QtGui.QPixmap(os.getcwd()+r"/Image/ca_result.jpg")
                 self.ui.label_5.setPixmap(pix)
                 self.showResult()
                 # self.image3 = ImageTk.PhotoImage(result_show)
@@ -457,9 +462,9 @@ class firstWindow(QtWidgets.QMainWindow):
                                             QMessageBox.Ok)
 
     def showResult(self):
-        image = Image.open("./Image/ca_result.jpg")
+        image = Image.open(os.getcwd()+r"/Image/ca_result.jpg")
         img = np.array(image)
-        imshow = Image.open("./Image/show.jpg")
+        imshow = Image.open(os.getcwd()+r"/Image/show.jpg")
         imshow = np.array(imshow)
         shapemax = -1
         contours = measure.find_contours(img, 0.5)
@@ -474,12 +479,12 @@ class firstWindow(QtWidgets.QMainWindow):
         for n, contour in enumerate(contours):
             if (contour.shape)[0] == shapemax:
                 plt.plot(contour[:, 1], contour[:, 0], color="red", linewidth=1)
-                plt.savefig("./image/result_contour.jpg")
+                plt.savefig(os.getcwd()+r"/image/result_contour.jpg")
 
-                img = Image.open("./image/result_contour.jpg")
+                img = Image.open(os.getcwd()+r"/image/result_contour.jpg")
                 img = img.crop((44, 28, 44 + 270, 28 + 164))
-                img.save("./image/result_contour.jpg")
-                pix = QtGui.QPixmap("./image/result_contour.jpg")
+                img.save(os.getcwd()+r"/image/result_contour.jpg")
+                pix = QtGui.QPixmap(os.getcwd()+r"/image/result_contour.jpg")
                 self.ui.label_6.setPixmap(pix)
 
     #产生Dice系数
@@ -492,7 +497,7 @@ class firstWindow(QtWidgets.QMainWindow):
 
             _maskA = imgdataA == 255.0
 
-            img = Image.open("./Image/ca_result.jpg").resize((512, 512))
+            img = Image.open(os.getcwd()+r"/Image/ca_result.jpg").resize((512, 512))
 
             imgdataB = np.matrix(img.getdata(), dtype='float')
 

@@ -86,13 +86,13 @@ def wavelet1(image_arr):
     # 得到Hu值
 
 
-def getHu(filePath=r'C:\Users\FEITENG\Desktop\毕设\testpatient\1\ct_050'):
-    meta = dicom.read_file(filePath)
-    pixel = meta.pixel_array
-    slope = meta.get('RescaleSlope')
-    intercept = meta.get('RescaleIntercept')
-    Hu = pixel * slope + intercept
-    return Hu
+# def getHu(filePath=r'C:\Users\FEITENG\Desktop\毕设\testpatient\1\ct_050'):
+#     meta = dicom.read_file(filePath)
+#     pixel = meta.pixel_array
+#     slope = meta.get('RescaleSlope')
+#     intercept = meta.get('RescaleIntercept')
+#     Hu = pixel * slope + intercept
+#     return Hu
 
 
 
